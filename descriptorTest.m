@@ -1,38 +1,19 @@
-img = rgb2gray(im2double(imread('assert\human\1.png')));
+img1 = rgb2gray(im2double(imread('assert\human\1.png')));
+img2 = rgb2gray(im2double(imread('assert\human\4.png')));
+corners1 = harris(img1, 0.05, 1e-6);
+corners2 = harris(img2, 0.05, 1e-6);
+% [ys, xs] = find(corners > 0);
+[desc1, orient1] = descriptor(img1, corners1);
+[desc2, orient2] = descriptor(img2, corners2);
 
-corners = harris(img, 0.05, 1e-6);
-% [ys, xs] = find(corners > 0);
-[descriptors, orientations] = descriptor(img, corners);
-% 
-% winSize = 16;
-% halfSize = winSize / 2;
-% gaus = fspecial('gaussian', winSize, 1);
-% [ys, xs] = find(corners > 0);
-% 
-% [gmag, gdir] = imgradient(img);
-% 
-% x = xs(5);
-% y = ys(5);
-% 
-% pmag = gmag(y-halfSize:y+halfSize, x-halfSize:x+halfSize);
-% pdir = gdir(y-halfSize:y+halfSize, x-halfSize:x+halfSize);
-% nidx = gdir < 0;
-% gdir(nidx) = gdir(nidx) + 360;
-% wpmag = imfilter(pmag, gaus);
-% 
-% oHist = zeros(1, 36);
-% for row = 1: winSize
-%     for col = 1: winSize
-%         dir = pdir(row, col);
-%         if dir < 0
-%             dir = dir + 360;
-%         end
-%         mag = wpmag(row, col);
-%         bin = floor(dir/10)+1;
-%         w = bin - dir/10;
-%         oHist(bin) = (1 - w) * mag;
-%         oHist(bin+1) = w * mag;
-%     end
-% end
-% [maxMag, maxDir] = max(oHist);
-% maxDir = (maxDir - 1) * 10;
+[i1, i2] = descriptorMatch(desc1, desc2, 0.9);
+
+[y1, x1] = find(corners1 > 0);
+[y2, x2] = find(corners2 > 0);
+
+pts1 = cat(2, x1, y1);
+pts2 = cat(2, x2, y2);
+pts1 = pts1(i1, :);
+pts2 = pts2(i2, :);
+
+showMatchedFeatures(img1, img2, pts1, pts2, 'montage');
